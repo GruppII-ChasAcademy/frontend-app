@@ -8,9 +8,6 @@ on:
       - 'app/.github/workflows/**'
   pull_request:
     branches: [main]
-    paths:
-      - 'app/**'
-      - 'app/.github/workflows/**'
 
 permissions:
   contents: read
