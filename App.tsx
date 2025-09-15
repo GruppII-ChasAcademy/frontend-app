@@ -5,17 +5,22 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import AppProvider from "./app/components/Providers/Provider";
 import AppNavigator from "./app/navigation/AppNavigator";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { store } from "./app/store/store";
+import { Provider } from "react-redux";
 const queryClient = new QueryClient();
+
 export default function App() {
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaProvider>
-        <QueryClientProvider client={queryClient}>
-          <AppProvider>
-            <AppNavigator />
-          </AppProvider>
-        </QueryClientProvider>
-      </SafeAreaProvider>
-    </GestureHandlerRootView>
+    <Provider store={store}>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <SafeAreaProvider>
+          <QueryClientProvider client={queryClient}>
+            <AppProvider>
+              <AppNavigator />
+            </AppProvider>
+          </QueryClientProvider>
+        </SafeAreaProvider>
+      </GestureHandlerRootView>
+    </Provider>
   );
 }

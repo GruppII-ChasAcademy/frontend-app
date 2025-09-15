@@ -10,6 +10,7 @@ export type User = {
     image: string;
     company: Company;
     date: string;
+    packages?: Package[];
 }
 export type CompanyAdress = {
     id: number;
@@ -31,7 +32,7 @@ export type DeliveryStatus = "preparing" | "Shipped" | "Delivered"
 export type Package = {
     id?: number;
     title?: string;
-    userId: User;
+    CustomerId: User;
     senderId: User;
     carrierId: User;
     status: DeliveryStatus;
