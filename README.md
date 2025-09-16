@@ -2,6 +2,28 @@
 
 
 Figma: https://www.figma.com/design/HMsVksOyA6S3ZsBGdZn303/Figma-Chas-Project?node-id=0-1&p=f&t=IdNb4XZDM0XbYpMO-0
+#app/
+  api/                 # API-funktioner (mock nu, riktiga sen)
+    companies.ts
+    packages.ts
+    users.ts
+  config/
+    data.ts            # "db" – mock-källa
+  hooks/context/
+    ApiContext.tsx     # Provider + useApiContext()
+    api/
+      useApiCtx.ts     # Aggregator – slår ihop alla domänhooks
+      useCompaniesApiCtx.ts
+      usePackagesApiCtx.ts
+      useUsersApiCtx.ts
+  store/
+    store.ts           # Redux store
+    companiesSlice.ts  # createEntityAdapter + reducers/selectors
+    packagesSlice.ts
+    usersSlice.ts
+  types/
+    types.ts           # Domän-typer (User, Company, Package, ...)
+#
 TL;DR – Global state + API-lager (mock → riktigt API)
 
 Målet: en enkel, förutsägbar arkitektur där UI bara pratar med ett ställe (ApiContext).
