@@ -1,19 +1,19 @@
 import useCompaniesApiCtx from "./useCompaniesApiCtx";
 import usePackagesApiCtx from "./usePackagesApiCtx";
 import useUsersApiCtx from "./useUsersApiCtx";
-import useAuthCtx from "./useAuthCtx";
+// import useAuthCtx from "./useAuthCtx";
 
 const useApiCtx = () => {
-  const auth = useAuthCtx();
+  //   const auth = useAuthCtx();
   const packages = usePackagesApiCtx();
   const users = useUsersApiCtx();
   const companies = useCompaniesApiCtx();
-  const {
-    signInMutation,
-    signUpMutation,
-    signOutMutation,
-    verifyAccountMutation,
-  } = auth;
+  //   const {
+  //     signInMutation,
+  //     signUpMutation,
+  //     signOutMutation,
+  //     verifyAccountMutation,
+  //   } = auth;
   const {
     listQuery: packagesQuery,
     createPackageMutation,
@@ -35,10 +35,10 @@ const useApiCtx = () => {
   } = companies;
   const isLoading =
     // auth
-    signInMutation?.isPending ||
-    signUpMutation?.isPending ||
-    signOutMutation?.isPending ||
-    verifyAccountMutation?.isPending ||
+    // signInMutation?.isPending ||
+    // signUpMutation?.isPending ||
+    // signOutMutation?.isPending ||
+    // verifyAccountMutation?.isPending ||
     // packages
     packagesQuery?.isFetching ||
     createPackageMutation?.isPending ||
@@ -58,7 +58,7 @@ const useApiCtx = () => {
 
   return {
     isLoading,
-    ...auth,
+    // ...auth,
     ...packages,
     ...users,
     ...companies,

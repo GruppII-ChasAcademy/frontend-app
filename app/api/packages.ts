@@ -80,11 +80,3 @@ export async function deletePackage(id: number): Promise<void> {
   mem.packages = mem.packages.filter((p) => p.id !== id);
   if (mem.packages.length === before) throw new Error("Package not found");
 }
-
-// (valfritt) Nollställ mocken till db igen
-export function resetPackagesMock(): void {
-  mem.packages = db.packages.map((p) => ({
-    ...p,
-    stats: [...(p.stats ?? [])],
-  }));
-}
