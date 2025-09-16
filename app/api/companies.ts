@@ -21,12 +21,12 @@ const nextId = (arr: { id?: number }[]) =>
 
 // ===== READ =====
 export async function listCompanies(): Promise<Company[]> {
-  await delay(150);
+  await delay(1000);
   return mem.companies;
 }
 
 export async function getCompanyById(id: number): Promise<Company> {
-  await delay(120);
+  await delay(1000);
   const c = mem.companies.find((x) => x.id === id);
   if (!c) throw new Error("Company not found");
   return c;
@@ -60,7 +60,7 @@ export type UpdateCompanyPayload = Partial<Company> & { id: number };
 export async function updateCompany(
   patch: UpdateCompanyPayload
 ): Promise<Company> {
-  await delay(180);
+  await delay(1000);
   const i = mem.companies.findIndex((x) => x.id === patch.id);
   if (i === -1) throw new Error("Company not found");
 
@@ -82,7 +82,7 @@ export async function updateCompany(
 
 // ===== DELETE =====
 export async function deleteCompany(id: number): Promise<void> {
-  await delay(120);
+  await delay(1000);
   const before = mem.companies.length;
   mem.companies = mem.companies.filter((x) => x.id !== id);
   if (mem.companies.length === before) throw new Error("Company not found");

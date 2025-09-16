@@ -25,8 +25,7 @@ const useApiCtx = () => {
     companies.companiesQuery?.isFetching ||
     companies.createCompanyMutation?.isPending ||
     companies.updateCompanyMutation?.isPending ||
-    companies.deleteCompanyMutation?.isPending ||
-    false;
+    companies.deleteCompanyMutation?.isPending;
 
   return {
     isLoading,

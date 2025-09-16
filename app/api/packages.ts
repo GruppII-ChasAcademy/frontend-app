@@ -11,13 +11,13 @@ let mem = {
 
 // Hämta alla paket
 export async function listPackages(): Promise<Package[]> {
-  await delay(200);
+  await delay(1000);
   return mem.packages;
 }
 
 // Hämta ett paket
 export async function getPackageById(id: number): Promise<Package> {
-  await delay(150);
+  await delay(1000);
   const pkg = mem.packages.find((p) => p.id === id);
   if (!pkg) throw new Error("Package not found");
   return pkg;
@@ -27,7 +27,7 @@ export async function getPackageById(id: number): Promise<Package> {
 export async function createPackage(
   payload: Omit<Package, "id" | "stats"> & { stats?: SensorValue[] }
 ): Promise<Package> {
-  await delay(250);
+  await delay(1000);
   const nextId =
     (mem.packages.length ? Math.max(...mem.packages.map((p) => p.id)) : 0) + 1;
   const pkg: Package = { id: nextId, stats: payload.stats ?? [], ...payload };
@@ -40,7 +40,7 @@ export async function updatePackageStatus(
   id: number,
   status: DeliveryStatus
 ): Promise<Package> {
-  await delay(180);
+  await delay(1000);
   const i = mem.packages.findIndex((p) => p.id === id);
   if (i === -1) throw new Error("Package not found");
   mem.packages[i] = { ...mem.packages[i], status };
@@ -53,7 +53,7 @@ export async function addSensorValue(
   pkgId: number,
   value: SensorValueInput
 ): Promise<Package> {
-  await delay(180);
+  await delay(1000);
   const i = mem.packages.findIndex((p) => p.id === pkgId);
   if (i === -1) throw new Error("Package not found");
 
@@ -75,7 +75,7 @@ export async function addSensorValue(
 
 // (valfritt) Ta bort paket
 export async function deletePackage(id: number): Promise<void> {
-  await delay(150);
+  await delay(1000);
   const before = mem.packages.length;
   mem.packages = mem.packages.filter((p) => p.id !== id);
   if (mem.packages.length === before) throw new Error("Package not found");
