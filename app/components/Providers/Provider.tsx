@@ -1,8 +1,11 @@
 import { ReactNode } from "react";
+import ApiProvider from "./ApiProvider";
 
-type ProviderProps = { children: ReactNode };
+type ProviderProps = {
+  children: ReactNode;
+};
 
-// Pass-through – inga egna providers ännu. TEST
-export default function Provider({ children }: ProviderProps) {
-  return <>{children}</>;
-}
+const Provider = ({ children }: ProviderProps) => {
+  return <ApiProvider>{children}</ApiProvider>;
+};
+export default Provider;
