@@ -4,29 +4,29 @@ import { useDispatch } from "react-redux";
 import type { AppDispatch } from "../../../store/store";
 import * as api from "../../../api/companies";
 import {
-  setAll,
-  removeOne,
-  updateOne,
-  addOne,
+  setAllCompanies,
+  addOneCompany,
+  updateOneCompany,
+  removeOneCompany,
 } from "../../../store/companiesSlice";
-import { Company } from "../../../types/types";
+import type { Company } from "../../../types/types";
 
 const KEY = ["companies"] as const;
 
 const useCompaniesApiCtx = () => {
-  const qc = useQueryClient();
+  const queryClient = useQueryClient();
   const dispatch = useDispatch<AppDispatch>();
 
-  const listQuery = useQuery<Company[], Error>({
+  const companiesQuery = useQuery<Company[], Error>({
     queryKey: KEY,
     queryFn: api.listCompanies,
   });
 
   useEffect(() => {
-    if (listQuery.isSuccess && listQuery.data) {
-      dispatch(setAll(listQuery.data));
+    if (companiesQuery.isSuccess && companiesQuery.data) {
+      dispatch(setAllCompanies(companiesQuery.data));
     }
-  }, [listQuery.isSuccess, listQuery.data, dispatch]);
+  }, [companiesQuery.isSuccess, companiesQuery.data, dispatch]);
 
   const createCompanyMutation = useMutation<
     Company,
@@ -34,23 +34,24 @@ const useCompaniesApiCtx = () => {
     api.CreateCompanyPayload
   >({
     mutationFn: api.createCompany,
-    onSuccess: (c) => {
-      dispatch(addOne(c)); // create => addOne
-      qc.setQueryData<Company[]>(KEY, (curr) => (curr ? [c, ...curr] : [c]));
+    onSuccess: (company) => {
+      dispatch(addOneCompany(company));
+      queryClient.setQueryData<Company[]>(KEY, (prev) =>
+        prev ? [company, ...prev] : [company]
+      );
     },
   });
 
-  // UPDATE
   const updateCompanyMutation = useMutation<
     Company,
     Error,
     api.UpdateCompanyPayload
   >({
     mutationFn: api.updateCompany,
-    onSuccess: (c) => {
-      dispatch(updateOne({ id: c.id, changes: c })); // update => updateOne/ upsertOne({id,changes})
-      qc.setQueryData<Company[]>(KEY, (curr) =>
-        curr ? curr.map((x) => (x.id === c.id ? c : x)) : [c]
+    onSuccess: (company) => {
+      dispatch(updateOneCompany({ id: company.id, changes: company }));
+      queryClient.setQueryData<Company[]>(KEY, (prev) =>
+        prev ? prev.map((c) => (c.id === company.id ? company : c)) : [company]
       );
     },
   });
@@ -58,16 +59,16 @@ const useCompaniesApiCtx = () => {
   const deleteCompanyMutation = useMutation<void, Error, { id: number }>({
     mutationFn: ({ id }) => api.deleteCompany(id),
     onSuccess: (_, { id }) => {
-      dispatch(removeOne(id));
-      qc.setQueryData<Company[]>(
+      dispatch(removeOneCompany(id));
+      queryClient.setQueryData<Company[]>(
         KEY,
-        (curr) => curr?.filter((x) => x.id !== id) ?? curr
+        (prev) => prev?.filter((c) => c.id !== id) ?? prev
       );
     },
   });
 
   return {
-    listQuery,
+    companiesQuery,
     createCompanyMutation,
     updateCompanyMutation,
     deleteCompanyMutation,

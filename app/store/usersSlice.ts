@@ -2,28 +2,28 @@ import { createSlice, createEntityAdapter } from "@reduxjs/toolkit";
 import type { RootState } from "./store";
 import type { User } from "../types/types";
 
+// Gör id obligatorisk i entitetslagret
 export type UserEntity = Omit<User, "id"> & { id: number };
 
 const usersAdapter = createEntityAdapter<UserEntity>({
   sortComparer: (a, b) => a.name.localeCompare(b.name),
 });
 
-const usersSlice = createSlice({
+const slice = createSlice({
   name: "users",
   initialState: usersAdapter.getInitialState(),
   reducers: {
-    setAll: usersAdapter.setAll,
-    upsertMany: usersAdapter.upsertMany,
-    upsertOne: usersAdapter.upsertOne,
-    removeOne: usersAdapter.removeOne,
-    removeAll: usersAdapter.removeAll,
+    setAllUsers: usersAdapter.setAll,
+    addOneUser: usersAdapter.addOne,
+    updateOneUser: usersAdapter.updateOne,
+    removeOneUser: usersAdapter.removeOne,
   },
 });
 
-export const { setAll, upsertMany, upsertOne, removeOne, removeAll } =
-  usersSlice.actions;
+export const { setAllUsers, addOneUser, updateOneUser, removeOneUser } =
+  slice.actions;
 
-export default usersSlice.reducer;
+export default slice.reducer;
 
 export const usersSelectors = usersAdapter.getSelectors<RootState>(
   (s) => s.users

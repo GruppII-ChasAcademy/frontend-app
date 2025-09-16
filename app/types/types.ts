@@ -31,9 +31,9 @@ export type DeliveryStatus = "preparing" | "Shipped" | "Delivered";
 export type Package = {
   id: number;
   title?: string;
-  CustomerId: User;
-  senderId: User;
-  carrierId: User;
+  CustomerId?: User;
+  senderId?: User;
+  carrierId?: User;
   status: DeliveryStatus;
   dateorder: string;
   datesend: string;

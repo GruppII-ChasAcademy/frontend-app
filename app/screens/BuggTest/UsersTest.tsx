@@ -1,17 +1,18 @@
 import React from "react";
 import { View, Text, Button } from "react-native";
-import useUsersApiCtx from "../../hooks/context/api/useUsersApiCtx";
-import useCompaniesApiCtx from "../../hooks/context/api/useCompaniesApiCtx";
+import { useApiContext } from "../../hooks/context/ApiContext";
 import type { Role } from "../../types/types";
 
 const UsersTest = () => {
   const {
-    listQuery: usersQuery,
-    createUserMutation,
-    updateUserMutation,
-    deleteUserMutation,
-  } = useUsersApiCtx();
-  const { listQuery: companiesQuery } = useCompaniesApiCtx();
+    users: {
+      usersQuery,
+      createUserMutation,
+      updateUserMutation,
+      deleteUserMutation,
+    },
+    companies: { companiesQuery },
+  } = useApiContext();
 
   const firstUser = usersQuery.data?.[0];
   const firstCompany = companiesQuery.data?.[0];
@@ -51,6 +52,7 @@ const UsersTest = () => {
       <Text style={{ fontWeight: "bold", fontSize: 16, marginBottom: 8 }}>
         Users – BuggTest
       </Text>
+
       <Text>isFetching: {String(usersQuery.isFetching)}</Text>
       <Text>count: {usersQuery.data?.length ?? 0}</Text>
       <Text>first: {firstUser?.name ?? "-"}</Text>

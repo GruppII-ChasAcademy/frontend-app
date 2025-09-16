@@ -1,14 +1,15 @@
-import React from "react";
 import { View, Text, Button } from "react-native";
-import useCompaniesApiCtx from "../../hooks/context/api/useCompaniesApiCtx";
+import { useApiContext } from "../../hooks/context/ApiContext";
 
 const CompaniesTest = () => {
   const {
-    listQuery: companiesQuery,
-    createCompanyMutation,
-    updateCompanyMutation,
-    deleteCompanyMutation,
-  } = useCompaniesApiCtx();
+    companies: {
+      companiesQuery,
+      createCompanyMutation,
+      updateCompanyMutation,
+      deleteCompanyMutation,
+    },
+  } = useApiContext();
 
   const first = companiesQuery.data?.[0];
 
@@ -16,7 +17,7 @@ const CompaniesTest = () => {
     createCompanyMutation.mutate({
       name: "Ny Debug Firma",
       date: new Date().toISOString(),
-      // location är optional – lämnas tom för test
+      // location är optional
     });
   };
 
@@ -37,6 +38,7 @@ const CompaniesTest = () => {
       <Text style={{ fontWeight: "bold", fontSize: 16, marginBottom: 8 }}>
         Companies – BuggTest
       </Text>
+
       <Text>isFetching: {String(companiesQuery.isFetching)}</Text>
       <Text>count: {companiesQuery.data?.length ?? 0}</Text>
       <Text>first: {first?.name ?? "-"}</Text>

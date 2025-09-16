@@ -1,7 +1,6 @@
 import React from "react";
 import { View, Text, Button, Alert } from "react-native";
-import usePackagesApiCtx from "../../hooks/context/api/usePackagesApiCtx";
-import useUsersApiCtx from "../../hooks/context/api/useUsersApiCtx";
+import { useApiContext } from "../../hooks/context/ApiContext";
 import type { DeliveryStatus, SensorValue } from "../../types/types";
 
 const nextStatus = (s: DeliveryStatus): DeliveryStatus =>
@@ -9,18 +8,20 @@ const nextStatus = (s: DeliveryStatus): DeliveryStatus =>
 
 const PackagesTest = () => {
   const {
-    listQuery: packagesQuery,
-    createPackageMutation,
-    updateStatusMutation,
-    addSensorValueMutation,
-    deletePackageMutation,
-  } = usePackagesApiCtx();
+    packages: {
+      packagesQuery,
+      createPackageMutation,
+      updateStatusMutation,
+      addSensorValueMutation,
+      deletePackageMutation,
+    },
+    users: { usersQuery },
+  } = useApiContext();
 
-  const { listQuery: usersQuery } = useUsersApiCtx();
-  const u = usersQuery.data ?? [];
-  const customer = u[0];
-  const sender = u[1];
-  const carrier = u[2];
+  const users = usersQuery.data ?? [];
+  const customer = users[0];
+  const sender = users[1];
+  const carrier = users[2];
   const canCreate = !!(customer && sender && carrier);
 
   const first = packagesQuery.data?.[0];
@@ -70,6 +71,7 @@ const PackagesTest = () => {
     if (!first) return;
     deletePackageMutation.mutate({ id: first.id });
   };
+
   const SensorRow = ({ s }: { s: SensorValue }) => (
     <View
       style={{
@@ -87,6 +89,7 @@ const PackagesTest = () => {
       <Text>{s.Alert}</Text>
     </View>
   );
+
   return (
     <View
       style={{ padding: 12, borderWidth: 1, borderRadius: 8, marginBottom: 12 }}
@@ -94,6 +97,7 @@ const PackagesTest = () => {
       <Text style={{ fontWeight: "bold", fontSize: 16, marginBottom: 8 }}>
         Packages – BuggTest
       </Text>
+
       <View style={{ gap: 12, marginBottom: 12 }}>
         {packagesQuery.data?.map((pkg) => (
           <View
@@ -121,6 +125,7 @@ const PackagesTest = () => {
           </View>
         ))}
       </View>
+
       <Text>isFetching: {String(packagesQuery.isFetching)}</Text>
       <Text>count: {packagesQuery.data?.length ?? 0}</Text>
       <Text>

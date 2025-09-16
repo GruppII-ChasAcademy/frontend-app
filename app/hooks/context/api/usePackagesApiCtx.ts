@@ -3,66 +3,67 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useDispatch } from "react-redux";
 import type { AppDispatch } from "../../../store/store";
 import * as api from "../../../api/packages";
-import { setAll, upsertOne, removeOne } from "../../../store/packagesSlice";
+import {
+  setAllPackages,
+  addOnePackage,
+  updateOnePackage,
+  removeOnePackage,
+} from "../../../store/packagesSlice";
 import type {
   Package,
-  DeliveryStatus,
   SensorValue,
+  DeliveryStatus,
 } from "../../../types/types";
 
 const KEY = ["packages"] as const;
+
 type CreatePayload = Omit<Package, "id" | "stats"> & { stats?: SensorValue[] };
-type SensorValueInput = Omit<SensorValue, "id"> & { id?: number };
+type UpdateStatusPayload = { id: number; status: DeliveryStatus };
+type AddSensorPayload = { pkgId: number; value: Omit<SensorValue, "id"> };
 
 const usePackagesApiCtx = () => {
-  const qc = useQueryClient();
+  const queryClient = useQueryClient();
   const dispatch = useDispatch<AppDispatch>();
 
-  const listQuery = useQuery<Package[], Error>({
+  const packagesQuery = useQuery<Package[], Error>({
     queryKey: KEY,
     queryFn: api.listPackages,
   });
 
   useEffect(() => {
-    if (listQuery.isSuccess && listQuery.data) {
-      dispatch(setAll(listQuery.data));
+    if (packagesQuery.isSuccess && packagesQuery.data) {
+      dispatch(setAllPackages(packagesQuery.data));
     }
-  }, [listQuery.isSuccess, listQuery.data, dispatch]);
+  }, [packagesQuery.isSuccess, packagesQuery.data, dispatch]);
 
   const createPackageMutation = useMutation<Package, Error, CreatePayload>({
     mutationFn: api.createPackage,
     onSuccess: (pkg) => {
-      dispatch(upsertOne(pkg));
-      qc.setQueryData<Package[]>(KEY, (curr) =>
-        curr ? [pkg, ...curr] : [pkg]
+      dispatch(addOnePackage(pkg));
+      queryClient.setQueryData<Package[]>(KEY, (prev) =>
+        prev ? [pkg, ...prev] : [pkg]
       );
     },
   });
 
-  const updateStatusMutation = useMutation<
-    Package,
-    Error,
-    { id: number; status: DeliveryStatus }
-  >({
-    mutationFn: ({ id, status }) => api.updatePackageStatus(id, status),
-    onSuccess: (pkg) => {
-      dispatch(upsertOne(pkg));
-      qc.setQueryData<Package[]>(KEY, (curr) =>
-        curr ? curr.map((p) => (p.id === pkg.id ? pkg : p)) : [pkg]
-      );
-    },
-  });
+  const updateStatusMutation = useMutation<Package, Error, UpdateStatusPayload>(
+    {
+      mutationFn: ({ id, status }) => api.updatePackageStatus(id, status),
+      onSuccess: (pkg) => {
+        dispatch(updateOnePackage({ id: pkg.id, changes: pkg }));
+        queryClient.setQueryData<Package[]>(KEY, (prev) =>
+          prev ? prev.map((p) => (p.id === pkg.id ? pkg : p)) : [pkg]
+        );
+      },
+    }
+  );
 
-  const addSensorValueMutation = useMutation<
-    Package,
-    Error,
-    { pkgId: number; value: SensorValueInput }
-  >({
+  const addSensorValueMutation = useMutation<Package, Error, AddSensorPayload>({
     mutationFn: ({ pkgId, value }) => api.addSensorValue(pkgId, value),
     onSuccess: (pkg) => {
-      dispatch(upsertOne(pkg));
-      qc.setQueryData<Package[]>(KEY, (curr) =>
-        curr ? curr.map((p) => (p.id === pkg.id ? pkg : p)) : [pkg]
+      dispatch(updateOnePackage({ id: pkg.id, changes: pkg }));
+      queryClient.setQueryData<Package[]>(KEY, (prev) =>
+        prev ? prev.map((p) => (p.id === pkg.id ? pkg : p)) : [pkg]
       );
     },
   });
@@ -70,16 +71,16 @@ const usePackagesApiCtx = () => {
   const deletePackageMutation = useMutation<void, Error, { id: number }>({
     mutationFn: ({ id }) => api.deletePackage(id),
     onSuccess: (_, { id }) => {
-      dispatch(removeOne(id));
-      qc.setQueryData<Package[]>(
+      dispatch(removeOnePackage(id));
+      queryClient.setQueryData<Package[]>(
         KEY,
-        (curr) => curr?.filter((p) => p.id !== id) ?? curr
+        (prev) => prev?.filter((p) => p.id !== id) ?? prev
       );
     },
   });
 
   return {
-    listQuery,
+    packagesQuery,
     createPackageMutation,
     updateStatusMutation,
     addSensorValueMutation,

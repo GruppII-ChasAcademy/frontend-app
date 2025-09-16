@@ -4,49 +4,52 @@ import { useDispatch } from "react-redux";
 import type { AppDispatch } from "../../../store/store";
 import * as api from "../../../api/users";
 import {
-  setAll as setAllUsers,
-  upsertOne as upsertOneUser,
-  removeOne as removeOneUser,
+  setAllUsers,
+  addOneUser,
+  updateOneUser,
+  removeOneUser,
   type UserEntity,
 } from "../../../store/usersSlice";
 import type { User } from "../../../types/types";
 
 const KEY = ["users"] as const;
-const toEntity = (u: User): UserEntity => {
-  if (u.id == null) throw new Error("User saknar id");
-  return u as UserEntity;
+
+const toEntity = (user: User): UserEntity => {
+  if (user.id == null) throw new Error("User saknar id");
+  return user as UserEntity;
 };
 
 const useUsersApiCtx = () => {
-  const qc = useQueryClient();
+  const queryClient = useQueryClient();
   const dispatch = useDispatch<AppDispatch>();
 
-  // QUERY (utan onSuccess i v5)
-  const listQuery = useQuery<User[], Error>({
+  const usersQuery = useQuery<User[], Error>({
     queryKey: KEY,
     queryFn: api.listUsers,
   });
 
   useEffect(() => {
-    if (listQuery.isSuccess && listQuery.data) {
-      dispatch(setAllUsers(listQuery.data.map(toEntity)));
+    if (usersQuery.isSuccess && usersQuery.data) {
+      dispatch(setAllUsers(usersQuery.data.map(toEntity)));
     }
-  }, [listQuery.isSuccess, listQuery.data, dispatch]);
+  }, [usersQuery.isSuccess, usersQuery.data, dispatch]);
 
   const createUserMutation = useMutation<User, Error, api.CreateUserPayload>({
     mutationFn: api.createUser,
-    onSuccess: (u) => {
-      dispatch(upsertOneUser(toEntity(u)));
-      qc.setQueryData<User[]>(KEY, (curr) => (curr ? [u, ...curr] : [u]));
+    onSuccess: (user) => {
+      dispatch(addOneUser(toEntity(user)));
+      queryClient.setQueryData<User[]>(KEY, (prev) =>
+        prev ? [user, ...prev] : [user]
+      );
     },
   });
 
   const updateUserMutation = useMutation<User, Error, api.UpdateUserPayload>({
     mutationFn: api.updateUser,
-    onSuccess: (u) => {
-      dispatch(upsertOneUser(toEntity(u)));
-      qc.setQueryData<User[]>(KEY, (curr) =>
-        curr ? curr.map((x) => (x.id === u.id ? u : x)) : [u]
+    onSuccess: (user) => {
+      dispatch(updateOneUser({ id: user.id!, changes: user }));
+      queryClient.setQueryData<User[]>(KEY, (prev) =>
+        prev ? prev.map((u) => (u.id === user.id ? user : u)) : [user]
       );
     },
   });
@@ -55,15 +58,15 @@ const useUsersApiCtx = () => {
     mutationFn: ({ id }) => api.deleteUser(id),
     onSuccess: (_, { id }) => {
       dispatch(removeOneUser(id));
-      qc.setQueryData<User[]>(
+      queryClient.setQueryData<User[]>(
         KEY,
-        (curr) => curr?.filter((x) => x.id !== id) ?? curr
+        (prev) => prev?.filter((u) => u.id !== id) ?? prev
       );
     },
   });
 
   return {
-    listQuery,
+    usersQuery,
     createUserMutation,
     updateUserMutation,
     deleteUserMutation,
