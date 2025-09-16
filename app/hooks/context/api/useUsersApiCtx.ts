@@ -33,7 +33,6 @@ const useUsersApiCtx = () => {
     }
   }, [listQuery.isSuccess, listQuery.data, dispatch]);
 
-  // MUTATIONER (onSuccess är OK i v5 på mutationer)
   const createUserMutation = useMutation<User, Error, api.CreateUserPayload>({
     mutationFn: api.createUser,
     onSuccess: (u) => {

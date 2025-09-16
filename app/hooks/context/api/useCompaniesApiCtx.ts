@@ -9,7 +9,7 @@ import {
   updateOne,
   addOne,
 } from "../../../store/companiesSlice";
-import type { Company } from "../../../types/types";
+import { Company } from "../../../types/types";
 
 const KEY = ["companies"] as const;
 
