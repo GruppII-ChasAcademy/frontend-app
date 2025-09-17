@@ -55,3 +55,11 @@ export type SensorValue = {
   Alert: AlertType;
   date: string;
 };
+
+export type AuthState = {
+  token: string | null;
+  userId: number | null;
+  role: Role | null;
+};
+
+
