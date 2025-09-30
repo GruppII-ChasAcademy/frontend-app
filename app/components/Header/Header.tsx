@@ -1,34 +1,31 @@
-import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+    import React from "react";
+    import { View, Text, StyleSheet } from "react-native";
+    import { SafeAreaView } from "react-native-safe-area-context";
 
-const Header = () => {
+    const Header = () => {
     return (
+        <SafeAreaView style={styles.safeArea}>
         <View style={styles.container}>
             <Text style={styles.title}>POSTEXPERTEN</Text>
         </View>
+        </SafeAreaView>
     );
-};
+    };
 
-const styles = StyleSheet.create({
+    const styles = StyleSheet.create({
+    safeArea: {
+        backgroundColor: "#1e3a5f",
+    },
     container: {
         height: 60,
-        backgroundColor: "#1e3a5f",
         justifyContent: "center",
         alignItems: "center",
-        borderBottomLeftRadius: 20,
-        borderBottomRightRadius: 20,
-        elevation: 5, 
-        shadowColor: "#000", 
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.3,
-        shadowRadius: 4,
     },
     title: {
         color: "white",
-        fontSize: 24,
+        fontSize: 20,
         fontWeight: "bold",
-        textAlign: "center",
     },
-});
+    });
 
 export default Header;
