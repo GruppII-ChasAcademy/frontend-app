@@ -15,6 +15,7 @@ import { runOnJS } from "react-native-reanimated";
 import { useGlobalTap } from "../hooks/context/GlobalTabContext";
 import useKeyboard from "../helpers/useKeyboard";
 
+// BTN varianter.
 type ButtonVariant =
   | "primary"
   | "outline"
