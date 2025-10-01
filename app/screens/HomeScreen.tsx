@@ -5,7 +5,7 @@ import { exitIcon } from "../components/icons";
 function HomeScreen() {
   return (
     <View>
-      <Text>HomeScreen</Text>
+      <Text>HomeScreenHej</Text>
       <Text>Button Showcase</Text>
       <View>
         <Text>primary</Text>
