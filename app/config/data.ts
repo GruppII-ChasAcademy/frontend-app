@@ -9,6 +9,7 @@ import type {
   GeoPoint,
   DeliveryStatus,
   AlertType,
+  City,
 } from "../types/types";
 
 // ---------- Addresses (5) ----------
@@ -297,7 +298,41 @@ export const packages: Package[] = [
     ],
   },
 ];
-
+export const CITY_DB: City[] = [
+  { name: "Stockholm", lat: 59.3293, lon: 18.0686 },
+  { name: "Gothenburg", lat: 57.7089, lon: 11.9746 },
+  { name: "Malmo", lat: 55.605, lon: 13.0038 },
+  { name: "Uppsala", lat: 59.8586, lon: 17.6389 },
+  { name: "Vasteras", lat: 59.6111, lon: 16.5448 },
+  { name: "Orebro", lat: 59.2741, lon: 15.2066 },
+  { name: "Linkoping", lat: 58.4108, lon: 15.6214 },
+  { name: "Norrkoping", lat: 58.5877, lon: 16.1924 },
+  { name: "Jonkoping", lat: 57.7826, lon: 14.1618 },
+  { name: "Helsingborg", lat: 56.0465, lon: 12.6945 },
+  { name: "Lund", lat: 55.7047, lon: 13.191 },
+  { name: "Umea", lat: 63.8258, lon: 20.263 },
+  { name: "Lulea", lat: 65.5848, lon: 22.1547 },
+  { name: "Ostersund", lat: 63.1792, lon: 14.6357 },
+  { name: "Sundsvall", lat: 62.3908, lon: 17.3069 },
+  { name: "Gavle", lat: 60.6749, lon: 17.1413 },
+  { name: "Boras", lat: 57.721, lon: 12.9401 },
+  { name: "Halmstad", lat: 56.6745, lon: 12.8568 },
+  { name: "Kalmar", lat: 56.6634, lon: 16.3568 },
+  { name: "Karlskrona", lat: 56.1616, lon: 15.5866 },
+  { name: "Skovde", lat: 58.3912, lon: 13.8451 },
+  { name: "Karlstad", lat: 59.4022, lon: 13.5115 },
+  { name: "Vaxjo", lat: 56.8777, lon: 14.8091 },
+  { name: "Kristianstad", lat: 56.0294, lon: 14.1567 },
+  { name: "Trollhattan", lat: 58.2837, lon: 12.2886 },
+  { name: "Uddevalla", lat: 58.3498, lon: 11.9424 },
+  { name: "Falun", lat: 60.6036, lon: 15.6259 },
+  { name: "Borlange", lat: 60.4858, lon: 15.4371 },
+  { name: "Eskilstuna", lat: 59.3713, lon: 16.5097 },
+  { name: "Sodertalje", lat: 59.1955, lon: 17.6253 },
+  { name: "Nykoping", lat: 58.753, lon: 17.0079 },
+  { name: "Visby", lat: 57.6348, lon: 18.2948 },
+  { name: "Kiruna", lat: 67.8558, lon: 20.2253 },
+];
 export const db = {
   CompanyAdresses,
   Companies,

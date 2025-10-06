@@ -3,65 +3,26 @@ import { users, packages } from "../config/data";
 import { fontSizes, colors } from "../config/styles";
 import Dialog from "../components/Dialog";
 import Button from "../components/Button";
-import { isToday } from "../config/utils";
+import {
+  formatDateTime,
+  getKpis,
+  getLatestReadingAcross,
+  isTemperatureOutOfRange,
+  isToday,
+  packageBelongsToUser,
+} from "../utils/utils";
 const CURRENT_USER_ID = 5;
-
-const isTempOutOfRange = (alertType: string, temp: number) => {
-  if (alertType === "Fridge") return temp > 8;
-  if (alertType === "Freezer") return temp > -15;
-  if (alertType === "Groceries") return temp > 25;
-  return false;
-};
-
-const getLastStatByDate = <T extends { date: string }>(stats: T[]) =>
-  stats.reduce<T | null>((acc, s) => {
-    if (!acc) return s;
-    return new Date(s.date) > new Date(acc.date) ? s : acc;
-  }, null);
 
 export default function HomeScreen() {
   const me = users.find((u) => u.id === CURRENT_USER_ID)!;
 
-  const myPackages = packages.filter((p) => {
-    switch (me.role) {
-      case "Customer":
-        return p.CustomerId?.id === me.id;
-      case "Sender":
-        return p.senderId?.id === me.id;
-      case "Carrier":
-        return p.carrierId?.id === me.id;
-      case "Admin":
-        return true;
-      default:
-        return false;
-    }
-  });
+  const myPackages = packages.filter((pkg) => packageBelongsToUser(pkg, me));
+  const { inTransit, deliveredToday, totalShipments } = getKpis(myPackages);
 
-  const inTransit = myPackages.filter((p) =>
-    ["preparing", "Shipped"].includes(p.status)
-  ).length;
-  const deliveredToday = myPackages.filter(
-    (p) => p.status === "Delivered" && isToday(p.daterecieved)
-  ).length;
-  const totalShipments = myPackages.length;
-
-  // 1) Ta fram senaste mätningen per paket
-  const lastPerPkg = myPackages
-    .map((p) => ({ pkg: p, last: getLastStatByDate(p.stats) }))
-    .filter((x) => x.last);
-
-  // 2) Välj den absolut senaste mätningen globalt
-  const latest = lastPerPkg.reduce<(typeof lastPerPkg)[number] | null>(
-    (acc, cur) => {
-      if (!acc) return cur;
-      return new Date(cur.last!.date) > new Date(acc.last!.date) ? cur : acc;
-    },
-    null
-  );
-
-  // 3) Visa varning ENDAST om den absoluta senaste mätningen är utanför gräns
+  const latest = getLatestReadingAcross(myPackages);
   const showWarning =
-    !!latest && isTempOutOfRange(latest.last!.Alert, latest.last!.temperature);
+    !!latest &&
+    isTemperatureOutOfRange(latest.last!.Alert, latest.last!.temperature);
 
   return (
     <View style={styles.screen}>
@@ -81,7 +42,7 @@ export default function HomeScreen() {
                 <Text style={styles.warningTitle}>Temperature Excursion</Text>
                 <Text style={styles.warningSub}>
                   Package ID: {latest.pkg.id} · {latest.last!.temperature}°C ·{" "}
-                  {new Date(latest.last!.date).toLocaleString("sv-SE")}
+                  {formatDateTime(latest.last!.date)}
                 </Text>
                 <View style={styles.warningButton}>
                   <Text style={styles.warningButtonText}>View Details</Text>
@@ -94,21 +55,20 @@ export default function HomeScreen() {
             <View>
               <Text style={styles.modalTitle}>Temperature Excursion</Text>
               <Text style={styles.modalSub}>
-                Packet Id: {latest.pkg.id}
+                Package: {latest.pkg.id}
                 {"\n"}
-                Alert Type: {latest.last!.Alert}
+                Type: {latest.last!.Alert}
                 {"\n"}
                 Temperature: {latest.last!.temperature}°C{"\n"}
-                Time: {new Date(latest.last!.date).toLocaleString("sv-SE")}
+                Time: {formatDateTime(latest.last!.date)}
               </Text>
               <Text style={styles.modalBody}>
-                The latest value are outside the reccomended value.
+                The latest reading is outside the recommended range.
               </Text>
               <Button
                 onPress={close}
                 variant="primary"
                 style={styles.modalClose}
-                enablePressedStyles
               >
                 Close
               </Button>
@@ -118,34 +78,23 @@ export default function HomeScreen() {
       ) : (
         <View style={styles.infoCard}>
           <Text style={styles.infoLabel}>Warnings</Text>
-          <Text style={styles.infoTitle}>Inga temperaturavvikelser</Text>
+          <Text style={styles.infoTitle}>No temperature excursions</Text>
           <Text style={styles.infoSub}>
-            Senaste mätningen (
-            {lastPerPkg.length
-              ? new Date(
-                  lastPerPkg.sort(
-                    (a, b) => +new Date(b.last!.date) - +new Date(a.last!.date)
-                  )[0].last!.date
-                ).toLocaleString("sv-SE")
-              : "—"}
-            ) är inom rekommenderad temperatur.
+            All packages are within the recommended temperature.
           </Text>
         </View>
       )}
 
       <Text style={styles.sectionHeader}>Dashboard</Text>
-
       <View style={styles.grid}>
         <View style={[styles.card, styles.cardHalf]}>
           <Text style={styles.cardLabel}>Packages in Transit</Text>
           <Text style={styles.cardValue}>{inTransit}</Text>
         </View>
-
         <View style={[styles.card, styles.cardHalf]}>
           <Text style={styles.cardLabel}>Delivered Today</Text>
           <Text style={styles.cardValue}>{deliveredToday}</Text>
         </View>
-
         <View style={[styles.card, styles.cardFull]}>
           <Text style={styles.cardLabel}>Total Shipments</Text>
           <Text style={styles.cardValue}>{totalShipments}</Text>
@@ -154,7 +103,6 @@ export default function HomeScreen() {
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
