@@ -3,15 +3,8 @@ import { users, packages } from "../config/data";
 import { fontSizes, colors } from "../config/styles";
 import Dialog from "../components/Dialog";
 import Button from "../components/Button";
-
+import { isToday } from "../config/utils";
 const CURRENT_USER_ID = 5;
-
-const isToday = (iso?: string) => {
-  if (!iso) return false;
-  const a = new Date(iso).toLocaleDateString("sv-SE");
-  const b = new Date().toLocaleDateString("sv-SE");
-  return a === b;
-};
 
 const isTempOutOfRange = (alertType: string, temp: number) => {
   if (alertType === "Fridge") return temp > 8;
