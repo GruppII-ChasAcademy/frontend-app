@@ -1,7 +1,7 @@
 import "react-native-reanimated";
 import "react-native-gesture-handler";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { SafeAreaProvider } from "react-native-safe-area-context";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import AppProvider from "./app/components/Providers/Provider";
 import AppNavigator from "./app/navigation/AppNavigator";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -14,11 +14,13 @@ export default function App() {
     <Provider store={store}>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <SafeAreaProvider>
-          <QueryClientProvider client={queryClient}>
-            <AppProvider>
-              <AppNavigator />
-            </AppProvider>
-          </QueryClientProvider>
+          <SafeAreaView style={{ flex: 1 }} edges={["top", "left", "right"]}>
+            <QueryClientProvider client={queryClient}>
+              <AppProvider>
+                <AppNavigator />
+              </AppProvider>
+            </QueryClientProvider>
+          </SafeAreaView>
         </SafeAreaProvider>
       </GestureHandlerRootView>
     </Provider>
