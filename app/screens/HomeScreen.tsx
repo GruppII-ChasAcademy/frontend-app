@@ -1,4 +1,4 @@
-import { Text, View, StyleSheet, Pressable } from "react-native";
+import { Text, View, StyleSheet } from "react-native";
 import { users, packages } from "../config/data";
 import { fontSizes, colors } from "../config/styles";
 import Dialog from "../components/Dialog";
@@ -19,6 +19,12 @@ const isTempOutOfRange = (alertType: string, temp: number) => {
   if (alertType === "Groceries") return temp > 25;
   return false;
 };
+
+const getLastStatByDate = <T extends { date: string }>(stats: T[]) =>
+  stats.reduce<T | null>((acc, s) => {
+    if (!acc) return s;
+    return new Date(s.date) > new Date(acc.date) ? s : acc;
+  }, null);
 
 export default function HomeScreen() {
   const me = users.find((u) => u.id === CURRENT_USER_ID)!;
@@ -46,14 +52,27 @@ export default function HomeScreen() {
   ).length;
   const totalShipments = myPackages.length;
 
-  const alertPkg = myPackages.find((p) => {
-    const last = p.stats[p.stats.length - 1];
-    return last && isTempOutOfRange(last.Alert, last.temperature);
-  });
+  // 1) Ta fram senaste mätningen per paket
+  const lastPerPkg = myPackages
+    .map((p) => ({ pkg: p, last: getLastStatByDate(p.stats) }))
+    .filter((x) => x.last);
+
+  // 2) Välj den absolut senaste mätningen globalt
+  const latest = lastPerPkg.reduce<(typeof lastPerPkg)[number] | null>(
+    (acc, cur) => {
+      if (!acc) return cur;
+      return new Date(cur.last!.date) > new Date(acc.last!.date) ? cur : acc;
+    },
+    null
+  );
+
+  // 3) Visa varning ENDAST om den absoluta senaste mätningen är utanför gräns
+  const showWarning =
+    !!latest && isTempOutOfRange(latest.last!.Alert, latest.last!.temperature);
 
   return (
     <View style={styles.screen}>
-      {alertPkg ? (
+      {showWarning && latest ? (
         <Dialog
           closeOnBackdropPress
           enableCloseGesture
@@ -67,7 +86,10 @@ export default function HomeScreen() {
               <View style={{ flex: 1 }}>
                 <Text style={styles.warningLabel}>Warning</Text>
                 <Text style={styles.warningTitle}>Temperature Excursion</Text>
-                <Text style={styles.warningSub}>Package ID: {alertPkg.id}</Text>
+                <Text style={styles.warningSub}>
+                  Package ID: {latest.pkg.id} · {latest.last!.temperature}°C ·{" "}
+                  {new Date(latest.last!.date).toLocaleString("sv-SE")}
+                </Text>
                 <View style={styles.warningButton}>
                   <Text style={styles.warningButtonText}>View Details</Text>
                 </View>
@@ -78,19 +100,24 @@ export default function HomeScreen() {
           {({ close }) => (
             <View>
               <Text style={styles.modalTitle}>Temperature Excursion</Text>
-              <Text style={styles.modalSub}>Package ID: {alertPkg.id}</Text>
-              <Text style={styles.modalBody}>
-                Senaste mätning indikerar temperatur utanför rekommenderat
-                intervall.
+              <Text style={styles.modalSub}>
+                Packet Id: {latest.pkg.id}
+                {"\n"}
+                Alert Type: {latest.last!.Alert}
+                {"\n"}
+                Temperature: {latest.last!.temperature}°C{"\n"}
+                Time: {new Date(latest.last!.date).toLocaleString("sv-SE")}
               </Text>
-
+              <Text style={styles.modalBody}>
+                The latest value are outside the reccomended value.
+              </Text>
               <Button
                 onPress={close}
                 variant="primary"
                 style={styles.modalClose}
                 enablePressedStyles
               >
-                Stäng
+                Close
               </Button>
             </View>
           )}
@@ -100,10 +127,19 @@ export default function HomeScreen() {
           <Text style={styles.infoLabel}>Warnings</Text>
           <Text style={styles.infoTitle}>Inga temperaturavvikelser</Text>
           <Text style={styles.infoSub}>
-            Alla paket ligger inom rekommenderad temperatur.
+            Senaste mätningen (
+            {lastPerPkg.length
+              ? new Date(
+                  lastPerPkg.sort(
+                    (a, b) => +new Date(b.last!.date) - +new Date(a.last!.date)
+                  )[0].last!.date
+                ).toLocaleString("sv-SE")
+              : "—"}
+            ) är inom rekommenderad temperatur.
           </Text>
         </View>
       )}
+
       <Text style={styles.sectionHeader}>Dashboard</Text>
 
       <View style={styles.grid}>
@@ -216,5 +252,4 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 8,
   },
-  modalCloseText: { color: colors.white, fontWeight: "600" },
 });

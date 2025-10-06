@@ -11,7 +11,7 @@ import type {
   AlertType,
 } from "../types/types";
 
-// ---------- Adresser (5 st) ----------
+// ---------- Addresses (5) ----------
 export const CompanyAdresses: CompanyAdress[] = [
   {
     id: 1,
@@ -23,23 +23,23 @@ export const CompanyAdresses: CompanyAdress[] = [
   {
     id: 2,
     adress: "Avenyn 12",
-    city: "Göteborg",
+    city: "Gothenburg",
     postnumber: 41136,
-    notes: "Region Väst",
+    notes: "West Region",
   },
   {
     id: 3,
     adress: "Västra Esplanaden 7",
-    city: "Umeå",
+    city: "Umea",
     postnumber: 90326,
-    notes: "Region Norr",
+    notes: "North Region",
   },
   {
     id: 4,
     adress: "Södra Förstadsg. 4",
-    city: "Malmö",
+    city: "Malmo",
     postnumber: 21143,
-    notes: "Region Syd",
+    notes: "South Region",
   },
   {
     id: 5,
@@ -50,7 +50,7 @@ export const CompanyAdresses: CompanyAdress[] = [
   },
 ];
 
-// ---------- Företag (5 st) ----------
+// ---------- Companies (5) ----------
 export const Companies: Company[] = [
   {
     id: 1,
@@ -74,7 +74,7 @@ export const Companies: Company[] = [
   { id: 5, name: "Klarna", location: [CompanyAdresses[1]], date: "2025-09-05" },
 ];
 
-// ---------- Användare (5 st) ----------
+// ---------- Users (5) ----------
 export const users: User[] = [
   {
     id: 1,
@@ -96,7 +96,7 @@ export const users: User[] = [
     phone: 46702223344,
     role: "Sender",
     image: "https://picsum.photos/seed/sven/200",
-    company: Companies[1], // Volvo
+    company: Companies[1],
     date: "2025-09-06",
     packages: [],
   },
@@ -108,7 +108,7 @@ export const users: User[] = [
     phone: 46703334455,
     role: "Carrier",
     image: "https://picsum.photos/seed/karin/200",
-    company: Companies[2], // IKEA
+    company: Companies[2],
     date: "2025-09-07",
     packages: [],
   },
@@ -120,7 +120,7 @@ export const users: User[] = [
     phone: 46704445566,
     role: "Customer",
     image: "https://picsum.photos/seed/carl/200",
-    company: Companies[3], // Spotify
+    company: Companies[3],
     date: "2025-09-07",
     packages: [],
   },
@@ -132,13 +132,13 @@ export const users: User[] = [
     phone: 46705556677,
     role: "Customer",
     image: "https://picsum.photos/seed/eva/200",
-    company: Companies[4], // Klarna
+    company: Companies[4],
     date: "2025-09-08",
     packages: [],
   },
 ];
 
-// ---------- Hjälp: skapa sensorrader ----------
+// ---------- Helpers ----------
 const gp = (lat: number, lon: number): GeoPoint => ({ lat, lon });
 const SV = (
   id: number,
@@ -149,19 +149,19 @@ const SV = (
   date: string
 ): SensorValue => ({ id, temperature, gps, huminity, Alert, date });
 
-// ---------- Packages (5 st), varje med 5 st SensorValue ----------
+// ---------- Packages (5) ----------
 export const packages: Package[] = [
   {
     id: 1,
-    title: "Kylvaror – Uppsala",
+    title: "Chilled goods – Uppsala",
     CustomerId: users[4], // Eva
-    senderId: users[1], // Sven (Sender)
-    carrierId: users[2], // Karin (Carrier)
+    senderId: users[1], // Sven
+    carrierId: users[2], // Karin
     status: "preparing",
     dateorder: "2025-09-08T08:15:00Z",
     datesend: "2025-09-08T10:00:00Z",
     daterecieved: "2025-09-09T13:30:00Z",
-    notes: "Kräver kylkedja",
+    notes: "Requires cold chain",
     stats: [
       SV(1, 4.2, gp(59.3293, 18.0686), "78%", "Fridge", "2025-09-08T10:00:00Z"),
       SV(2, 4.5, gp(59.4, 17.95), "77%", "Fridge", "2025-09-08T11:00:00Z"),
@@ -172,15 +172,15 @@ export const packages: Package[] = [
   },
   {
     id: 2,
-    title: "Frysvaror – Malmö",
+    title: "Frozen goods – Malmo",
     CustomerId: users[3], // Carl
-    senderId: users[1], // Sven (Sender)
-    carrierId: users[2], // Karin (Carrier)
+    senderId: users[1], // Sven
+    carrierId: users[2], // Karin
     status: "Shipped",
     dateorder: "2025-09-07T09:00:00Z",
     datesend: "2025-09-07T12:30:00Z",
     daterecieved: "2025-09-08T09:15:00Z",
-    notes: "Håll -18°C",
+    notes: "Keep -18°C",
     stats: [
       SV(
         6,
@@ -205,15 +205,15 @@ export const packages: Package[] = [
   },
   {
     id: 3,
-    title: "Grönsakslåda – Göteborg",
+    title: "Vegetable crate – Gothenburg",
     CustomerId: users[3], // Carl
-    senderId: users[0], // Alice (Admin som avsändare i test)
+    senderId: users[0], // Alice
     carrierId: users[2], // Karin
     status: "Delivered",
     dateorder: "2025-09-05T08:00:00Z",
     datesend: "2025-09-05T10:00:00Z",
     daterecieved: "2025-09-05T16:45:00Z",
-    notes: "Ömtåligt",
+    notes: "Fragile",
     stats: [
       SV(
         11,
@@ -238,7 +238,7 @@ export const packages: Package[] = [
   },
   {
     id: 4,
-    title: "Elektronik – Umeå",
+    title: "Electronics – Umea",
     CustomerId: users[4], // Eva
     senderId: users[1], // Sven
     carrierId: users[2], // Karin
@@ -246,7 +246,7 @@ export const packages: Package[] = [
     dateorder: "2025-09-09T07:30:00Z",
     datesend: "2025-09-09T09:00:00Z",
     daterecieved: "2025-09-10T14:10:00Z",
-    notes: "Fuktkänsligt",
+    notes: "Moisture-sensitive",
     stats: [
       SV(
         16,
@@ -271,7 +271,7 @@ export const packages: Package[] = [
   },
   {
     id: 5,
-    title: "Färskvaror – Klarna",
+    title: "Fresh goods – Klarna",
     CustomerId: users[4], // Eva
     senderId: users[1], // Sven
     carrierId: users[2], // Karin
@@ -279,7 +279,7 @@ export const packages: Package[] = [
     dateorder: "2025-09-10T07:45:00Z",
     datesend: "2025-09-10T10:15:00Z",
     daterecieved: "2025-09-11T12:20:00Z",
-    notes: "Får ej överstiga 8°C",
+    notes: "Must not exceed 8°C",
     stats: [
       SV(
         21,
