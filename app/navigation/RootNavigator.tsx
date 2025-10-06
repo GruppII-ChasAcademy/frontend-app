@@ -2,6 +2,7 @@ import { View, StyleSheet } from "react-native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import TabNavigator from "./tab/TabNavigator";
 import Header from "../components/Header/Header";
+import { colors } from "../config/styles";
 
 const RootStack = createNativeStackNavigator();
 
@@ -19,6 +20,7 @@ function RootNavigator() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: colors.background,
   },
 });
 

@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { colors } from "../../config/styles";
 
 const Header = () => {
   return (
@@ -14,7 +15,7 @@ const Header = () => {
 
 const styles = StyleSheet.create({
   safeArea: {
-    backgroundColor: "#1e3a5f",
+    backgroundColor: colors.background,
   },
   container: {
     height: 20,

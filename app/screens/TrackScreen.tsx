@@ -2,9 +2,10 @@ import { Text, View, StyleSheet, ScrollView } from "react-native";
 import Button from "../components/Button";
 import Dialog from "../components/Dialog";
 import { exitIcon } from "../components/icons";
+import { colors } from "../config/styles";
 function TrackScreen() {
   return (
-    <View>
+    <View style={{ backgroundColor: colors.background }}>
       <Text>TrackScreen</Text>
       <Dialog
         closeOnBackdropPress={false}

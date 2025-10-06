@@ -1,7 +1,12 @@
 // config/styles.ts
 
 export const colors = {
-  primary: "#3B82F6",
+  primary: "#1D4ED8",
+
+  secondary: "#6366F1",
+
+  background: "#0f1a30ff",
+
   gray: {
     25: "#FCFCFD",
     50: "#F9FAFB",
