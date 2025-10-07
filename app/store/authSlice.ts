@@ -1,43 +1,35 @@
-    import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-    import type { User, Role, AuthState } from "../types/types";
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-    const initialState: AuthState & { user: User | null; isAuthenticated: boolean } = {
+type Role = 'admin' | 'sender' | 'carrier' | 'customer';
+
+interface AuthState {
+    token: string | null;
+    role: Role | null;
+    isAuthenticated: boolean;
+}
+
+const initialState: AuthState = {
     token: null,
-    userId: null,
     role: null,
-    user: null,
     isAuthenticated: false,
     };
 
-    const validRoles: Role[] = ["Admin", "Sender", "Carrier", "Customer"];
-
     const authSlice = createSlice({
-    name: "auth",
+    name: 'auth',
     initialState,
     reducers: {
-        login: (state, action: PayloadAction<{ user: User; token: string }>) => {
-        const { user, token } = action.payload;
-
-        if (!validRoles.includes(user.role)) {
-            throw new Error(`Ogiltig roll: ${user.role}`);
-        }
-
-        state.user = user;
-        state.userId = user.id ?? null;
-        state.role = user.role;
-        state.token = token;
+        loginSuccess: (state, action: PayloadAction<{ token: string; role: Role }>) => {
+        state.token = action.payload.token;
+        state.role = action.payload.role;
         state.isAuthenticated = true;
         },
         logout: (state) => {
-        state.user = null;
-        state.userId = null;
-        state.role = null;
         state.token = null;
+        state.role = null;
         state.isAuthenticated = false;
         },
     },
-    });
+});
 
-export const { login, logout } = authSlice.actions;
+export const { loginSuccess, logout } = authSlice.actions;
 export default authSlice.reducer;
-
