@@ -7,7 +7,7 @@ const Header = () => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
-        <Text style={styles.title}>POSTEXPERTEN</Text>
+        <Text style={styles.title}>POSTALEXPERTS</Text>
       </View>
     </SafeAreaView>
   );
@@ -16,9 +16,10 @@ const Header = () => {
 const styles = StyleSheet.create({
   safeArea: {
     backgroundColor: colors.background,
+    width: "100%",
   },
   container: {
-    height: 20,
+    paddingVertical: 12,
     justifyContent: "center",
     alignItems: "center",
   },
