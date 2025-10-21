@@ -1,3 +1,5 @@
+// useApiCtx.ts
+import { useMemo } from "react";
 import useCompaniesApiCtx from "./useCompaniesApiCtx";
 import usePackagesApiCtx from "./usePackagesApiCtx";
 import useUsersApiCtx from "./useUsersApiCtx";
@@ -9,27 +11,39 @@ const useApiCtx = () => {
   const users = useUsersApiCtx();
   const companies = useCompaniesApiCtx();
 
+  const currentUser = useMemo(() => {
+    const id = auth.user?.id;
+    const list = users.usersQuery?.data;
+    if (id == null || !list) return null;
+    return list.find((u) => u.id === id) ?? null;
+  }, [auth.user?.id, users.usersQuery?.data]);
+
   const isLoading =
-    // packages
     packages.packagesQuery?.isFetching ||
     packages.createPackageMutation?.isPending ||
     packages.updateStatusMutation?.isPending ||
     packages.addSensorValueMutation?.isPending ||
     packages.deletePackageMutation?.isPending ||
-    // users
     users.usersQuery?.isFetching ||
     users.createUserMutation?.isPending ||
     users.updateUserMutation?.isPending ||
     users.deleteUserMutation?.isPending ||
-    // companies
     companies.companiesQuery?.isFetching ||
     companies.createCompanyMutation?.isPending ||
     companies.updateCompanyMutation?.isPending ||
     companies.deleteCompanyMutation?.isPending;
 
+  const error =
+    users.usersQuery?.error ??
+    packages.packagesQuery?.error ??
+    companies.companiesQuery?.error ??
+    null;
+
   return {
     isLoading,
+    error,
     auth,
+    currentUser,
     packages,
     users,
     companies,

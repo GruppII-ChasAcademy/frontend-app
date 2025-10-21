@@ -1,12 +1,17 @@
 // app/screens/TrackScreen.tsx
 import React, { useMemo } from "react";
-import { View, Text, StyleSheet, FlatList, Image } from "react-native";
-import useApiCtx from "../hooks/context/api/useApiCtx";
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  Image,
+  ActivityIndicator,
+} from "react-native";
 import { colors, fontSizes } from "../config/styles";
-import type { Package, User } from "../types/types";
+import type { Package } from "../types/types";
 import Dialog from "../components/Dialog";
 import Button from "../components/Button";
-
 import {
   formatDateTime,
   findNearestCityName,
@@ -14,122 +19,150 @@ import {
   packageBelongsToUser,
   getLastByDate,
 } from "../utils/utils";
-
-const CURRENT_USER_ID = 5;
+import { useApiContext } from "../hooks/context/ApiContext";
 
 export default function TrackScreen() {
-  const { packages: packagesContext, users: usersContext } = useApiCtx();
+  const {
+    currentUser,
+    packages: { packagesQuery },
+    users: { usersQuery },
+  } = useApiContext();
 
-  const packagesData =
-    (packagesContext.packagesQuery?.data as Package[] | undefined) ?? [];
-  const usersData = (usersContext.usersQuery?.data as User[] | undefined) ?? [];
+  const loading = packagesQuery.isLoading || usersQuery.isLoading;
+  const error =
+    (packagesQuery.isError && (packagesQuery.error as Error)) ||
+    (usersQuery.isError && (usersQuery.error as Error)) ||
+    null;
 
-  const currentUser = usersData.find((u) => u.id === CURRENT_USER_ID) as
-    | (User & { id: number })
-    | undefined;
-
-  const userPackages = useMemo(() => {
-    if (!currentUser) return [];
-    return packagesData.filter((pkg) => packageBelongsToUser(pkg, currentUser));
-  }, [packagesData, currentUser]);
+  const userPackages = useMemo<Package[]>(() => {
+    if (!currentUser || !packagesQuery.data) return [];
+    return packagesQuery.data.filter((pkg) =>
+      packageBelongsToUser(pkg, currentUser)
+    );
+  }, [currentUser, packagesQuery.data]);
 
   return (
     <View style={styles.screen}>
       <Text style={styles.title}>Package Status</Text>
 
-      <FlatList
-        data={userPackages}
-        keyExtractor={(item) => String(item.id)}
-        ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
-        contentContainerStyle={{ paddingBottom: 16 }}
-        renderItem={({ item }) => {
-          const lastSensor = getLastByDate(item.stats);
-          if (!lastSensor) return null;
+      {loading && (
+        <View style={styles.infoCard}>
+          <ActivityIndicator />
+          <Text style={styles.infoSub}>Loading packages…</Text>
+        </View>
+      )}
 
-          const cityName = findNearestCityName(
-            lastSensor.gps.lat,
-            lastSensor.gps.lon
-          );
-          const cityHistory = buildCityHistory(item);
+      {!loading && error && (
+        <View style={styles.infoCard}>
+          <Text style={styles.errorTitle}>Failed to load</Text>
+          <Text style={styles.infoSub}>{error.message}</Text>
+        </View>
+      )}
 
-          return (
-            <Dialog
-              closeOnBackdropPress
-              enableCloseGesture
-              trigger={({ open }) => (
-                <Button
-                  variant="card"
-                  onPress={open}
-                  style={styles.card}
-                  enablePressedStyles
-                >
-                  <View style={styles.textColumn}>
-                    <Text style={styles.packageId}>Package ID: {item.id}</Text>
-                    <Text style={styles.currentLocation}>
-                      Current Location: {cityName}
+      {!loading && !error && !currentUser && (
+        <View style={styles.infoCard}>
+          <Text style={styles.errorTitle}>Not signed in</Text>
+          <Text style={styles.infoSub}>Log in to track your packages.</Text>
+        </View>
+      )}
+
+      {!loading && !error && currentUser && (
+        <FlatList
+          data={userPackages}
+          keyExtractor={(item) => String(item.id)}
+          ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+          contentContainerStyle={{ paddingBottom: 16 }}
+          renderItem={({ item }) => {
+            const lastSensor = getLastByDate(item.stats);
+            if (!lastSensor) return null;
+
+            const cityName = findNearestCityName(
+              lastSensor.gps.lat,
+              lastSensor.gps.lon
+            );
+            const cityHistory = buildCityHistory(item);
+
+            return (
+              <Dialog
+                closeOnBackdropPress
+                enableCloseGesture
+                trigger={({ open }) => (
+                  <Button
+                    variant="card"
+                    onPress={open}
+                    style={styles.card}
+                    enablePressedStyles
+                  >
+                    <View style={styles.textColumn}>
+                      <Text style={styles.packageId}>
+                        Package ID: {item.id}
+                      </Text>
+                      <Text style={styles.currentLocation}>
+                        Current Location: {cityName}
+                      </Text>
+                      <Text style={styles.metaText}>
+                        Temperature: {lastSensor.temperature}°C | Humidity:{" "}
+                        {lastSensor.huminity}
+                      </Text>
+                    </View>
+                    <Image
+                      source={{
+                        uri: `https://picsum.photos/seed/${item.id}/112/84`,
+                      }}
+                      style={styles.thumbnail}
+                    />
+                  </Button>
+                )}
+              >
+                {({ close }) => (
+                  <View>
+                    <Text style={styles.modalTitle}>Package {item.id}</Text>
+                    <Text style={styles.modalSub}>
+                      Current: {cityName} •{" "}
+                      {formatDateTime(lastSensor.date, "en-GB")}
                     </Text>
-                    <Text style={styles.metaText}>
-                      Temperature: {lastSensor.temperature}°C | Humidity:{" "}
+                    <Text style={styles.modalBody}>
+                      Temperature: {lastSensor.temperature}°C • Humidity:{" "}
                       {lastSensor.huminity}
                     </Text>
-                  </View>
-                  <Image
-                    source={{
-                      uri: `https://picsum.photos/seed/${item.id}/112/84`,
-                    }}
-                    style={styles.thumbnail}
-                  />
-                </Button>
-              )}
-            >
-              {({ close }) => (
-                <View>
-                  <Text style={styles.modalTitle}>Package {item.id}</Text>
-                  <Text style={styles.modalSub}>
-                    Current: {cityName} •{" "}
-                    {formatDateTime(lastSensor.date, "en-GB")}
-                  </Text>
-                  <Text style={styles.modalBody}>
-                    Temperature: {lastSensor.temperature}°C • Humidity:{" "}
-                    {lastSensor.huminity}
-                  </Text>
 
-                  <Text style={styles.historyTitle}>Route history</Text>
-                  <View style={styles.historyList}>
-                    {cityHistory.map((entry) => (
-                      <View
-                        key={`${entry.city}-${entry.date}`}
-                        style={styles.historyRow}
-                      >
-                        <View style={styles.historyBullet} />
-                        <View style={{ flex: 1 }}>
-                          <Text style={styles.historyCity}>{entry.city}</Text>
-                          <Text style={styles.historyTime}>
-                            {formatDateTime(entry.date, "en-GB")}
-                          </Text>
+                    <Text style={styles.historyTitle}>Route history</Text>
+                    <View style={styles.historyList}>
+                      {cityHistory.map((entry) => (
+                        <View
+                          key={`${entry.city}-${entry.date}`}
+                          style={styles.historyRow}
+                        >
+                          <View style={styles.historyBullet} />
+                          <View style={{ flex: 1 }}>
+                            <Text style={styles.historyCity}>{entry.city}</Text>
+                            <Text style={styles.historyTime}>
+                              {formatDateTime(entry.date, "en-GB")}
+                            </Text>
+                          </View>
                         </View>
-                      </View>
-                    ))}
-                  </View>
+                      ))}
+                    </View>
 
-                  <Button
-                    onPress={close}
-                    variant="primary"
-                    style={styles.modalClose}
-                  >
-                    Close
-                  </Button>
-                </View>
-              )}
-            </Dialog>
-          );
-        }}
-        ListEmptyComponent={
-          <View style={styles.emptyState}>
-            <Text style={styles.emptyText}>No packages to track.</Text>
-          </View>
-        }
-      />
+                    <Button
+                      onPress={close}
+                      variant="primary"
+                      style={styles.modalClose}
+                    >
+                      Close
+                    </Button>
+                  </View>
+                )}
+              </Dialog>
+            );
+          }}
+          ListEmptyComponent={
+            <View style={styles.emptyState}>
+              <Text style={styles.emptyText}>No packages to track.</Text>
+            </View>
+          }
+        />
+      )}
     </View>
   );
 }
@@ -143,6 +176,19 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 12,
   },
+
+  infoCard: {
+    backgroundColor: colors.gray[50],
+    borderRadius: 12,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: colors.gray[200],
+    marginBottom: 16,
+    alignItems: "center",
+    gap: 6,
+  },
+  infoSub: { color: colors.gray[600] },
+  errorTitle: { color: colors.warning, fontWeight: "600" },
 
   card: {
     flexDirection: "row",

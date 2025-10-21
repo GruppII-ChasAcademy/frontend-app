@@ -21,7 +21,14 @@ export default function UserCard({ user, title = "Profile" }: Props) {
           {user.role && <Text style={styles.role}>{String(user.role)}</Text>}
         </View>
       </View>
-
+      {user.company && (
+        <View style={styles.row}>
+          <Text style={styles.label}>Company</Text>
+          <Text style={styles.value}>
+            {"name" in user.company ? user.company.name : String(user.company)}
+          </Text>
+        </View>
+      )}
       <View style={styles.row}>
         <Text style={styles.label}>Email</Text>
         <Text style={styles.value}>{user.epost ?? "-"}</Text>
@@ -34,15 +41,6 @@ export default function UserCard({ user, title = "Profile" }: Props) {
         </Text>
       </View>
 
-      {user.company && (
-        <View style={styles.row}>
-          <Text style={styles.label}>Company</Text>
-          <Text style={styles.value}>
-            {"name" in user.company ? user.company.name : String(user.company)}
-          </Text>
-        </View>
-      )}
-
       {user.date && (
         <View style={styles.row}>
           <Text style={styles.label}>Member since</Text>
@@ -51,11 +49,6 @@ export default function UserCard({ user, title = "Profile" }: Props) {
           </Text>
         </View>
       )}
-
-      <View style={[styles.row, { borderBottomWidth: 0 }]}>
-        <Text style={styles.label}>Packages</Text>
-        <Text style={styles.value}>{user.packages?.length ?? 0}</Text>
-      </View>
     </View>
   );
 }
