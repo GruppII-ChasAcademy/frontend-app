@@ -1,144 +1,140 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import {
   View,
-  StyleSheet,
   Text,
+  StyleSheet,
+  StyleSheet as RNStyleSheet,
+  TouchableOpacity,
   Linking,
   Platform,
-  TouchableOpacity,
 } from "react-native";
-import Button from "../../components/Button";
 import {
   CameraView,
   useCameraPermissions,
   type BarcodeScanningResult,
 } from "expo-camera";
+import Button from "../../components/Button";
 
-export default function QRScanner() {
+type Props = {
+  onScanned?: (data: string) => void;
+  openUrls?: boolean;
+  showOverlay?: boolean;
+  showTorch?: boolean;
+};
+
+export default function QRScanner({
+  onScanned,
+  openUrls = true,
+  showOverlay = true,
+  showTorch = true,
+}: Props) {
   const [permission, requestPermission] = useCameraPermissions();
-  const [locked, setLocked] = useState(false);
-  const [last, setLast] = useState<string | null>(null);
+  const [locked, setLocked] = useState(false); // lock after first hit
   const [torch, setTorch] = useState(false);
 
-  if (!permission) return <View />;
+  if (!permission) return <View style={styles.fill} />;
 
   if (!permission.granted) {
     return (
-      <View style={[styles.container, styles.center]}>
-        <Text style={styles.title}>Kamerabehörighet behövs</Text>
-        <Text style={styles.paragraph}>
-          Du behöver ge appen tillgång till kameran för att skanna QR-koder.
+      <View style={[styles.fill, styles.center, styles.pad]}>
+        <Text style={styles.title}>Camera permission required</Text>
+        <Text style={styles.subtitle}>
+          Allow camera access to scan QR codes.
         </Text>
-        <Button variant="outline" onPress={requestPermission}>
-          Ge behörighet
+        <Button variant="primary" onPress={requestPermission}>
+          Allow camera
         </Button>
+        {Platform.OS === "ios" && <View style={{ height: 8 }} />}
       </View>
     );
   }
 
-  const onBarcodeScanned = (result: BarcodeScanningResult) => {
+  const handleScan = (result: BarcodeScanningResult) => {
     if (locked) return;
     setLocked(true);
 
-    // SDK 50+: .data är sträng. Vissa versioner har .rawValue.
     const value = (result?.data as any)?.rawValue ?? result?.data ?? "";
     const data = String(value);
-    setLast(data);
 
-    if (/^https?:\/\//i.test(data)) {
+    // pass to parent
+    onScanned?.(data);
+
+    // optionally open URLs
+    if (openUrls && /^https?:\/\//i.test(data)) {
       Linking.openURL(data).catch(() => {});
     }
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.scannerBox}>
-        <CameraView
-          style={StyleSheet.absoluteFillObject}
-          facing="back"
-          barcodeScannerSettings={{ barcodeTypes: ["qr"] }}
-          onBarcodeScanned={onBarcodeScanned}
-          enableTorch={torch}
-        />
-        {/* Enkel overlay/sikte */}
+    <View style={styles.root}>
+      <CameraView
+        style={RNStyleSheet.absoluteFillObject}
+        facing="back"
+        barcodeScannerSettings={{ barcodeTypes: ["qr"] }}
+        onBarcodeScanned={handleScan}
+        enableTorch={torch}
+      />
+
+      {showOverlay && (
         <View pointerEvents="none" style={styles.overlay}>
           <View style={styles.frame} />
-          <Text style={styles.overlayText}>Rikta mot en QR-kod</Text>
+          <Text style={styles.overlayText}>Aim at a QR code</Text>
         </View>
+      )}
 
-        {/* Torch-knapp uppe till höger */}
+      {showTorch && (
         <TouchableOpacity
           accessibilityRole="button"
           onPress={() => setTorch((t) => !t)}
           style={styles.torch}
         >
-          <Text style={styles.torchText}>{torch ? "🔦 På" : "🔦 Av"}</Text>
+          <Text style={styles.torchText}>{torch ? "🔦 On" : "🔦 Off"}</Text>
         </TouchableOpacity>
-      </View>
-
-      {last && (
-        <View style={styles.result}>
-          <Text style={styles.label}>Senast skannad:</Text>
-          <Text selectable>{last}</Text>
-        </View>
       )}
-
-      {locked && (
-        <Button variant="primary" onPress={() => setLocked(false)}>
-          Skanna igen
-        </Button>
-      )}
-
-      {/* Extra: i Expo Go behövs inga permission-strängar i app.json */}
-      {Platform.OS === "ios" && <View style={{ height: 8 }} />}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, gap: 16, backgroundColor: "#fff" },
-  center: { alignItems: "center", justifyContent: "center", gap: 12 },
-  title: { fontSize: 18, fontWeight: "600" },
-  paragraph: { color: "#4b5563", textAlign: "center", marginBottom: 8 },
-
-  scannerBox: {
+  fill: { flex: 1 },
+  root: {
     flex: 1,
+    borderRadius: 12,
     overflow: "hidden",
-    borderRadius: 16,
-    position: "relative",
+    backgroundColor: "#000",
   },
+  center: { alignItems: "center", justifyContent: "center", gap: 12 },
+  pad: { padding: 16 },
+  title: { fontSize: 18, fontWeight: "600" },
+  subtitle: { color: "#555", textAlign: "center", marginBottom: 8 },
 
   overlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...RNStyleSheet.absoluteFillObject,
     alignItems: "center",
     justifyContent: "center",
   },
   frame: {
-    width: 240,
-    height: 240,
-    borderRadius: 18,
+    width: 230,
+    height: 230,
+    borderRadius: 16,
     borderWidth: 3,
-    borderColor: "rgba(255,255,255,0.9)",
+    borderColor: "rgba(255,255,255,0.95)",
   },
   overlayText: {
-    marginTop: 12,
+    marginTop: 10,
     color: "#fff",
     fontWeight: "600",
     textShadowColor: "rgba(0,0,0,0.4)",
     textShadowRadius: 6,
   },
-
   torch: {
     position: "absolute",
-    top: 12,
-    right: 12,
+    top: 10,
+    right: 10,
     paddingHorizontal: 10,
     paddingVertical: 6,
     backgroundColor: "rgba(0,0,0,0.45)",
     borderRadius: 999,
   },
   torchText: { color: "#fff", fontWeight: "600" },
-
-  result: { padding: 12, borderRadius: 12, backgroundColor: "#f3f4f6" },
-  label: { fontWeight: "600", marginBottom: 4 },
 });
