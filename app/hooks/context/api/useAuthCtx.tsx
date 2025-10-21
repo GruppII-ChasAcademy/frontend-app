@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, ReactNode } from "react";
 import { useDispatch } from "react-redux";
 import { loginSuccess, logout as logoutAction } from '../../../store/authSlice';
-import { mockLogin } from "../../../services/mockAuth"; 
+import { mockLoginData } from "../../../services/mockAuth";
 
 type User = {
   id: number;
@@ -23,16 +23,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const dispatch = useDispatch();
 
-  const login = async (email: string, password: string) => {
-    try {
-      const data = await mockLogin(email, password); 
-      setUser(data);
-      dispatch(loginSuccess(data));
-    } catch (err) {
-      throw new Error("Login failed");
-    }
-  };
 
+const login = async (email: string, password: string) => {
+  try {
+    const data = await mockLoginData(email, password); 
+    setUser(data);
+    dispatch(loginSuccess(data));
+  } catch (err) {
+    throw new Error("Login failed");
+  }
+};
   const logout = () => {
     setUser(null);
     dispatch(logoutAction());

@@ -2,14 +2,14 @@ import { useState } from "react";
 import { View, Text, TextInput, StyleSheet } from "react-native";
 import { useDispatch } from "react-redux";
 import { loginSuccess } from "../store/authSlice";
-import { mockLogin } from "../services/mockAuth";
+import { mockLoginData } from "../services/mockAuth";
 import Button from "../components/Button";
 import useAuthCtx from "../hooks/context/api/useAuthCtx";
 
 
     export default function LoginScreen() {
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
+    const [username, setUsername] = useState('sven@volvo.example');
+    const [password, setPassword] = useState('secret');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     
