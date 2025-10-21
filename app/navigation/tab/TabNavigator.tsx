@@ -5,7 +5,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 import HomeScreen from "../../screens/HomeScreen";
 import ProfileScreen from "../../screens/ProfileScreen";
-import ScanScreen from "../../screens/ScanScreen";
+import ScanScreen from "../../screens/ScanScreen/ScanScreen";
 import TrackScreen from "../../screens/TrackScreen";
 import AppLayout from "../../components/layouts/AppLayouts";
 
