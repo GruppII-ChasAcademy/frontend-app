@@ -4,19 +4,21 @@ import { useDispatch } from "react-redux";
 import { loginSuccess } from "../store/authSlice";
 import { mockLogin } from "../services/mockAuth";
 import Button from "../components/Button";
+import useAuthCtx from "../hooks/context/api/useAuthCtx";
 
-export default function LoginScreen() {
+
+    export default function LoginScreen() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-    const dispatch = useDispatch();
+    
+    const auth = useAuthCtx(); 
 
     const handleLogin = async () => {
-    try {
+        try {
         setLoading(true);
-        const { token, role } = await mockLogin(username, password);
-        dispatch(loginSuccess({ token, role }));
+        await auth.login(username, password); 
         } catch (err) {
         setError('Login failed');
         } finally {
@@ -51,7 +53,7 @@ export default function LoginScreen() {
         </Button>
         </View>
     );
-}
+    }
 
 const styles = StyleSheet.create({
     container: { flex: 1, justifyContent: 'center', padding: 20 },

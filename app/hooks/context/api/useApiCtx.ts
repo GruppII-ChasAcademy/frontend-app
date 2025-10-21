@@ -1,10 +1,10 @@
 import useCompaniesApiCtx from "./useCompaniesApiCtx";
 import usePackagesApiCtx from "./usePackagesApiCtx";
 import useUsersApiCtx from "./useUsersApiCtx";
-// import useAuthCtx from "./useAuthCtx";
+import useAuthCtx from "./useAuthCtx";
 
 const useApiCtx = () => {
-  // const auth = useAuthCtx();
+  const auth = useAuthCtx();
   const packages = usePackagesApiCtx();
   const users = useUsersApiCtx();
   const companies = useCompaniesApiCtx();
@@ -29,6 +29,7 @@ const useApiCtx = () => {
 
   return {
     isLoading,
+    auth,
     packages,
     users,
     companies,

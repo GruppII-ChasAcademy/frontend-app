@@ -8,6 +8,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { store } from "./app/store/store";
 import { Provider } from "react-redux";
 import { colors } from "./app/config/styles";
+import { AuthProvider } from './app/hooks/context/api/useAuthCtx';
+
 const queryClient = new QueryClient();
 
 export default function App() {
@@ -17,9 +19,11 @@ export default function App() {
         <SafeAreaProvider>
           <SafeAreaView style={{ flex: 1 }} edges={["top", "left", "right"]}>
             <QueryClientProvider client={queryClient}>
-              <AppProvider>
-                <AppNavigator />
-              </AppProvider>
+              <AuthProvider>
+                <AppProvider>
+                  <AppNavigator />
+                </AppProvider>
+              </AuthProvider>
             </QueryClientProvider>
           </SafeAreaView>
         </SafeAreaProvider>
