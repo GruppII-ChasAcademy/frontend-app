@@ -1,4 +1,3 @@
-// app/mocks/data.ts
 import type {
   Role,
   User,
@@ -338,4 +337,29 @@ export const db = {
   Companies,
   users,
   packages,
+};
+
+export const addPackageFromScan = (data: string) => {
+  try {
+    const parsed = JSON.parse(data);
+
+    const newPackage: Package = {
+      id: db.packages.length + 1,
+      title: parsed.title ?? `Scanned package: ${data}`,
+      CustomerId: db.users.find(u => u.id === parsed.CustomerId) || db.users[4],
+      senderId: db.users.find(u => u.id === parsed.senderId) || db.users[1],
+      carrierId: db.users.find(u => u.id === parsed.carrierId) || db.users[2],
+      status: parsed.status ?? "preparing",
+      dateorder: new Date().toISOString(),
+      datesend: new Date().toISOString(),
+      daterecieved: new Date().toISOString(),
+      notes: parsed.notes ?? "Generated from QR scan",
+      stats: parsed.stats || [],
+    };
+
+    db.packages.unshift(newPackage);
+    console.log("Added new package from QR:", newPackage);
+  } catch (error) {
+    console.error("Invalid QR data:", error);
+  }
 };

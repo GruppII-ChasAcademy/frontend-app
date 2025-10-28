@@ -1,23 +1,31 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, ScrollView } from "react-native";
 import Button from "../../components/Button";
 import QRScanner from "./QRScanner";
+import usePackagesApiCtx from '../../hooks/context/api/usePackagesApiCtx';
 
 const ScanScreen = () => {
   const [last, setLast] = useState<string | null>(null);
   const [scannerKey, setScannerKey] = useState(0);
-
-  const handleResult = (data: string) => {
-    setLast(data);
-  };
+  const { addPackageFromScan } = usePackagesApiCtx();
 
   const scanAgain = () => {
     setLast(null);
     setScannerKey((k) => k + 1);
   };
 
+  const handleResult = async (data: string) => {
+    setLast(data);
+    try {
+      await addPackageFromScan(data);
+      console.log("New package created from scan:", data);
+    } catch (error) {
+      console.error("Failed to add package:", error);
+    }
+  };
+
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Scan Screen</Text>
 
       <View style={styles.scannerBox}>
@@ -48,15 +56,15 @@ const ScanScreen = () => {
           Clear result
         </Button>
       )}
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#f2f2f2", gap: 16 },
+  container: { padding: 20, backgroundColor: "#f2f2f2", gap: 16, flexGrow: 1 },
   title: { fontSize: 24, fontWeight: "600", textAlign: "center" },
   scannerBox: {
-    flex: 1,
+    height: 300, 
     borderWidth: 2,
     borderColor: "#333",
     borderRadius: 12,
