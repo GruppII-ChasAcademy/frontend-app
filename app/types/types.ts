@@ -1,7 +1,7 @@
 export type Role = "Admin" | "Sender" | "Carrier" | "Customer";
 
 export type User = {
-  id?: number;
+  id: number;
   name: string;
   password: string;
   epost: string;
@@ -42,7 +42,7 @@ export type Package = {
   notes?: string;
 };
 export type AlertType = "Fridge" | "Freezer" | "Groceries";
-
+export type City = { name: string; lat: number; lon: number };
 export type GeoPoint = {
   lat: number;
   lon: number;
@@ -54,4 +54,10 @@ export type SensorValue = {
   huminity: string;
   Alert: AlertType;
   date: string;
+};
+
+export type AuthState = {
+  token: string | null;
+  userId: number | null;
+  role: Role | null;
 };
