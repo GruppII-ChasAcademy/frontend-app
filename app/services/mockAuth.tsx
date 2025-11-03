@@ -10,9 +10,10 @@ export type UserRole = "admin" | "sender" | "carrier" | "receiver";
 
     const mockUsers: User[] = [
     { id: 1, email: "admin@example.com", password: "admin123", role: "admin", token: "token-admin" },
-    { id: 2, email: "hej@hej.com", password: "hej123", role: "sender", token: "token-sender" },
+    { id: 2, email: "sender@example.com", password: "sender123", role: "sender", token: "token-sender" },
     { id: 3, email: "carrier@example.com", password: "carrier123", role: "carrier", token: "token-carrier" },
     { id: 4, email: "receiver@example.com", password: "receiver123", role: "receiver", token: "token-receiver" },
+    
     ];
 
     export const mockLogin = async (email: string, password: string) => {
